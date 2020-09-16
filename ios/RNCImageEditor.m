@@ -50,9 +50,13 @@ RCT_EXPORT_METHOD(cropImage:(NSURLRequest *)imageRequest
     [RCTConvert CGSize:cropData[@"size"]]
   };
   @try {
-    NSURL *url = [imageRequest URL];
-    NSString *urlPath = [url path];
-    NSString *extension = [urlPath pathExtension];
+      if (imageRequest == nil) {
+          reject(@"exception", @"URI not found", nil);
+          return;
+      }
+      NSURL *url = [imageRequest URL];
+      NSString *urlPath = [url path];
+      NSString *extension = [urlPath pathExtension];
 
     [[_bridge moduleForName:@"ImageLoader" lazilyLoadIfNecessary:YES] loadImageWithURLRequest:imageRequest callback:^(NSError *error, UIImage *image) {
       if (error) {
@@ -86,7 +90,7 @@ RCT_EXPORT_METHOD(cropImage:(NSURLRequest *)imageRequest
           else{
 
             imageData = UIImageJPEGRepresentation(croppedImage, 1);
-            path = [RNCFileSystem generatePathInDirectory:[[RNCFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"ReactNative_cropped_image_"] withExtension:@".jpg"];
+              path = [RNCFileSystem generatePathInDirectory:[[RNCFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"ReactNative_cropped_image_"] withExtension:@".jpg"];
           }
 
           NSError *writeError;
