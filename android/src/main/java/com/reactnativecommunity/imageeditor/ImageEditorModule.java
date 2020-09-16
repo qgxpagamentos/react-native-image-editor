@@ -173,30 +173,35 @@ public class ImageEditorModule extends ReactContextBaseJavaModule {
       Promise promise) {
     ReadableMap offset = options.hasKey("offset") ? options.getMap("offset") : null;
     ReadableMap size = options.hasKey("size") ? options.getMap("size") : null;
-    if (offset == null || size == null ||
-        !offset.hasKey("x") || !offset.hasKey("y") ||
-        !size.hasKey("width") || !size.hasKey("height")) {
-      throw new JSApplicationIllegalArgumentException("Please specify offset and size");
-    }
-    if (uri == null || uri.isEmpty()) {
-      throw new JSApplicationIllegalArgumentException("Please specify a URI");
-    }
 
-    CropTask cropTask = new CropTask(
-        getReactApplicationContext(),
-        uri,
-        (int) offset.getDouble("x"),
-        (int) offset.getDouble("y"),
-        (int) size.getDouble("width"),
-        (int) size.getDouble("height"),
-        promise);
-    if (options.hasKey("displaySize")) {
-      ReadableMap targetSize = options.getMap("displaySize");
-      cropTask.setTargetSize(
-        (int) targetSize.getDouble("width"),
-        (int) targetSize.getDouble("height"));
-    }
-    cropTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    try {
+      if (offset == null || size == null ||
+            !offset.hasKey("x") || !offset.hasKey("y") ||
+            !size.hasKey("width") || !size.hasKey("height")) {
+          throw new JSApplicationIllegalArgumentException("Please specify offset and size");
+        }
+        if (uri == null || uri.isEmpty()) {
+          throw new JSApplicationIllegalArgumentException("Please specify a URI");
+        }
+
+        CropTask cropTask = new CropTask(
+            getReactApplicationContext(),
+            uri,
+            (int) offset.getDouble("x"),
+            (int) offset.getDouble("y"),
+            (int) size.getDouble("width"),
+            (int) size.getDouble("height"),
+            promise);
+        if (options.hasKey("displaySize")) {
+          ReadableMap targetSize = options.getMap("displaySize");
+          cropTask.setTargetSize(
+            (int) targetSize.getDouble("width"),
+            (int) targetSize.getDouble("height"));
+        }
+        cropTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    } catch (Exception e) {
+        promise.reject(e);
+    }    
   }
 
   private static class CropTask extends GuardedAsyncTask<Void, Void> {
