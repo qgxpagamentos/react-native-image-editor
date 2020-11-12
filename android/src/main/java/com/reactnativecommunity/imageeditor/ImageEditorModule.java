@@ -34,6 +34,7 @@ import android.graphics.Rect;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 
@@ -277,7 +278,15 @@ public class ImageEditorModule extends ReactContextBaseJavaModule {
 
         String mimeType = outOptions.outMimeType;
         if (mimeType == null || mimeType.isEmpty()) {
-          throw new IOException("Could not determine MIME type");
+
+          //workaround Galaxy A31 SM-A315G
+          outOptions.inJustDecodeBounds = true;
+          InputStream is = openBitmapInputStream();
+          BitmapFactory.decodeStream(is, null, outOptions);
+          mimeType = outOptions.outMimeType;
+          if (mimeType == null || mimeType.isEmpty()) {
+            throw new IOException("Could not determine MIME type");
+          }
         }
 
         File tempFile = createTempFile(mContext, mimeType);
